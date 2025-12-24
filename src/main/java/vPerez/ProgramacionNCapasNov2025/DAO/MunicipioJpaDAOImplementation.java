@@ -49,6 +49,7 @@ public class MunicipioJpaDAOImplementation implements IMunicipioJPA {
 //            }
 
             result.Correct = true;
+            result.StatusCode = 200;
 
         } catch (Exception ex) {
             result.Correct = false;

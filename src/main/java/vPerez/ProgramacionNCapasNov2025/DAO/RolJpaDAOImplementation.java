@@ -36,8 +36,9 @@ public class RolJpaDAOImplementation implements IRolJPA{
        
        result.Object = roles;
        result.Correct = true;
-//       result.StatusCode = 200;
+       result.StatusCode = 200;
         }catch(Exception ex){
+            result.StatusCode = 500;
             result.Correct = false;
             result.ErrorMesagge = ex.getLocalizedMessage();
             result.ex = ex;

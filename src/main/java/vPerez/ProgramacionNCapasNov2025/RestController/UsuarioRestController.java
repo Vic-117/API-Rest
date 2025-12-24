@@ -33,16 +33,16 @@ public class UsuarioRestController {
     @Autowired
     UsuarioJpaDAOImplementation usuarioJpaDaoImplementation;
     
-    @Autowired
-    DireccionJpaDAOImplementation direccionJpaDaoImplementation; 
-    
-    @Autowired
-    PaisJpaDAOImplementation paisJpaDaoImplementation;
+//    @Autowired
+//    DireccionJpaDAOImplementation direccionJpaDaoImplementation; 
+//    
+//    @Autowired
+//    PaisJpaDAOImplementation paisJpaDaoImplementation;
 
     @GetMapping
     public ResponseEntity getAll() {
         Result result = usuarioJpaDaoImplementation.getAll();
-        return ResponseEntity.status(result.StatusCode).body(result.Object);
+        return ResponseEntity.status(result.StatusCode).body(result);
     }
 
     @GetMapping("{idUsuario}")
@@ -71,7 +71,7 @@ public class UsuarioRestController {
     @DeleteMapping("{idUsuario}")
     public ResponseEntity deleteUsuario(@PathVariable("idUsuario") int idUsuario){
         Result result = usuarioJpaDaoImplementation.delete(idUsuario);
-        return ResponseEntity.status(result.StatusCode).build();
+        return ResponseEntity.status(result.StatusCode).body(result);
     }
     
     @PostMapping("/busqueda")
@@ -94,31 +94,9 @@ public class UsuarioRestController {
         return ResponseEntity.status(result.StatusCode).build();
     }
     
-    @PostMapping("direccion/agregar/{idUsuario}")
-    public ResponseEntity direccionAdd(@PathVariable("idUsuario") int idUsuario, @RequestBody Direccion direccionBody){
-        Result result = direccionJpaDaoImplementation.add(direccionBody, idUsuario);
-        return ResponseEntity.status(result.StatusCode).build();
-    }
     
-    @PutMapping("direccion/editar")
-    public ResponseEntity direccionUpdate( @RequestBody Usuario usuarioBody){
-//        direccionBody.setIdDireccion(idDireccion);
-//    usuarioBody.direcciones.add(new Direccion());
-        Result result = direccionJpaDaoImplementation.update(usuarioBody.direcciones.get(0));
-        return ResponseEntity.status(result.StatusCode).build();
-    }
     
-    @DeleteMapping("direccion/eliminar/{idDireccion}")
-    public ResponseEntity direccionDelete(@PathVariable("idDireccion") int idDireccion){
-        Result result = direccionJpaDaoImplementation.delete(idDireccion);
-        return ResponseEntity.status(result.StatusCode).build();
-    }
     
-    @GetMapping("direccion/pais")
-    public ResponseEntity paisGetAll(){
-        Result result = paisJpaDaoImplementation.getAll();
-        return ResponseEntity.status(result.StatusCode).body(result.Object);
-    }
     
 
 }

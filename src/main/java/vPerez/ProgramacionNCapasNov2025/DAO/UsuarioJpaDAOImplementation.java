@@ -28,24 +28,27 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
     @Autowired
     private EntityManager entityManager;
 
-//    @Autowired
-//    private UsuarioMapper usuarioMapper;
-//    @Autowired
-//    private ModelMapper modelMapper;
     @Override
     public Result getAll() {
         Result result = new Result();
         try {
             TypedQuery<Usuario> typedQuery = entityManager.createQuery("FROM Usuario ORDER BY idUsuario DESC", Usuario.class);//crear consulta
             List<Usuario> usuarios = typedQuery.getResultList();//obtener resultados de consulta(Usuarios entidades)
-
             result.Object = usuarios;
-            result.Correct = true;
-            result.StatusCode = 200;
+            if (usuarios.isEmpty() || typedQuery.getResultList() == null) {
+                result.StatusCode = 400;
+
+            } else if (result.Correct) {
+                result.StatusCode = 200;
+                result.Correct = true;
+            }
+
         } catch (Exception ex) {
+            result.StatusCode = 500;
             result.Correct = false;
             result.ErrorMesagge = ex.getLocalizedMessage();
             result.ex = ex;
+
         }
         return result;
     }
@@ -55,9 +58,9 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
     public Result add(Usuario usuario) {
         Result result = new Result();
         try {
-
-            entityManager.persist(usuario);//Para que genere el id
-
+            if (usuario == null) {
+                entityManager.persist(usuario);//Para que genere el id
+            }
             usuario.direcciones.get(0).Usuario = new Usuario();
             usuario.direcciones.get(0).Usuario.setIdUsuario(usuario.getIdUsuario());
 //            Despues de que genere el id realizamos el proceso de la direccion
@@ -153,7 +156,7 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
             }
 
         } catch (Exception ex) {
-             result.StatusCode = 500;
+            result.StatusCode = 500;
             result.Correct = false;
             result.ErrorMesagge = ex.getLocalizedMessage();
             result.ex = ex;
@@ -248,19 +251,17 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
             //String builder trabaja sobre la misma cadena, un String normal si se modifica se crea otro con la modificacion en otro espacio de memoria
             StringBuilder query = new StringBuilder("FROM Usuario WHERE UPPER(nombre) LIKE UPPER(:nombre) AND UPPER(apellidoPaterno) LIKE UPPER(:apellidoPaterno) AND UPPER(apellidoMaterno) LIKE UPPER(:apellidoMaterno)");
 
-           
-
             TypedQuery<Usuario> queryUsuarios = entityManager.createQuery(query.toString(), Usuario.class);
 
             queryUsuarios.setParameter("nombre", "%" + usuario.getNombre() + "%");//asignar parametros de entrada
             queryUsuarios.setParameter("apellidoPaterno", "%" + usuario.getApellidoPaterno() + "%");
             queryUsuarios.setParameter("apellidoMaterno", "%" + usuario.getApellidoMaterno() + "%");
 
-             //si tiene rol la busqueda
+            //si tiene rol la busqueda
             if (usuario.rol.getIdRol() != 0) {
                 query.append(" AND rol.idRol = :idRol");
             }
-            
+
             if (usuario.rol.getIdRol() != 0) {
                 queryUsuarios.setParameter("idRol", usuario.rol.getIdRol());
             }
@@ -271,7 +272,6 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
             for (Usuario item : usuarios) {
                 result.Objects.add(item);
             }
-            
 
         } catch (Exception ex) {
             result.StatusCode = 500;

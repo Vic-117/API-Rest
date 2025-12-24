@@ -48,7 +48,7 @@ public class ColoniaJpaDAOImplementation implements IColoniaJPA {
 //            }
 //            
             result.Correct = true;
-        
+            result.StatusCode = 200;
       
           
         } catch (Exception ex) {
