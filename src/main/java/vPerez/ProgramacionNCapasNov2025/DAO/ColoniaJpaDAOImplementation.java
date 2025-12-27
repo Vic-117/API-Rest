@@ -40,15 +40,17 @@ public class ColoniaJpaDAOImplementation implements IColoniaJPA {
             List<Colonia> colonias = typedQuery.getResultList();
             
             result.Object = colonias;
-//            
-//            result.Objects = new ArrayList<>();
-//            for(Colonia colonia: colonias){
-//                vPerez.ProgramacionNCapasNov2025.ML.Colonia coloniaML = modelMapper.map(colonia, vPerez.ProgramacionNCapasNov2025.ML.Colonia.class);
-//                result.Objects.add(coloniaML);
-//            }
-//            
-            result.Correct = true;
-            result.StatusCode = 200;
+            
+             if(colonias == null){
+                 result.StatusCode = 400;
+            }else if(colonias.size() == 0){
+                 result.StatusCode = 204;
+                  result.Correct = true;
+            }else{
+                result.StatusCode = 200;
+                 result.Correct = true;
+            
+            }
       
           
         } catch (Exception ex) {

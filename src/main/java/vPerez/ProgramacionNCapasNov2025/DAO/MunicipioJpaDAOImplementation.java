@@ -27,7 +27,6 @@ public class MunicipioJpaDAOImplementation implements IMunicipioJPA {
     @Autowired
     EntityManager entityManager;
 
-    
     @Override
     public Result getByEstado(int idEstado) {
         Result result = new Result();
@@ -37,22 +36,24 @@ public class MunicipioJpaDAOImplementation implements IMunicipioJPA {
                     + "WHERE e.idEstado = :idEstado ";
             TypedQuery<Municipio> typedQuery = entityManager.createQuery(jpql, Municipio.class).setParameter("idEstado", idEstado);//Consulta
             List<Municipio> municipios = typedQuery.getResultList();//resultados
-            
-            result.Object = municipios;
-//            result.Objects = new ArrayList<>();
-//
-//            for (Municipio municipio : municipios) {
-//                //guardando resultados para mostrar en la vista
-//                vPerez.ProgramacionNCapasNov2025.ML.Municipio municipioML = modelMapper.map(municipio, vPerez.ProgramacionNCapasNov2025.ML.Municipio.class);
-//                result.Objects.add(municipioML);
-//
-//            }
 
-            result.Correct = true;
-            result.StatusCode = 200;
+            result.Object = municipios;
+            if (municipios == null) {
+                result.StatusCode = 400;
+            } else if (municipios.size() == 0) {
+                result.StatusCode = 204;
+                result.Correct = true;
+            } else {
+                result.StatusCode = 200;
+                result.Correct = true;
+
+            }
+
+
 
         } catch (Exception ex) {
             result.Correct = false;
+            result.StatusCode = 500;
             result.ErrorMesagge = ex.getLocalizedMessage();
             result.ex = ex;
         }

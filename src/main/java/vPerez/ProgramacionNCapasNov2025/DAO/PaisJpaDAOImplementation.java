@@ -33,18 +33,20 @@ public class PaisJpaDAOImplementation implements IPaisJPA{
             
             TypedQuery<Pais> typedQuery = entityManager.createQuery("FROM Pais", Pais.class);
             List<Pais> paises = typedQuery.getResultList();
-            
             result.Object = paises;
-            result.Correct = true;
-            if(result.Correct){
-                result.StatusCode = 200;
-                
+            if(paises == null){
+                 result.StatusCode = 400;
+            }else if(paises.size() == 0){
+                 result.StatusCode = 204;
+                  result.Correct = true;
             }else{
-                result.StatusCode = 400;
+                result.StatusCode = 200;
+                 result.Correct = true;
+            
             }
-            
-            
-            
+           
+                
+                   
         }catch(Exception ex){
             result.StatusCode = 500;
             result.Correct = false;

@@ -33,12 +33,6 @@ public class UsuarioRestController {
     @Autowired
     UsuarioJpaDAOImplementation usuarioJpaDaoImplementation;
     
-//    @Autowired
-//    DireccionJpaDAOImplementation direccionJpaDaoImplementation; 
-//    
-//    @Autowired
-//    PaisJpaDAOImplementation paisJpaDaoImplementation;
-
     @GetMapping
     public ResponseEntity getAll() {
         Result result = usuarioJpaDaoImplementation.getAll();
@@ -49,7 +43,7 @@ public class UsuarioRestController {
     public ResponseEntity getById(@PathVariable("idUsuario") int idUsuario) {
         Result result = usuarioJpaDaoImplementation.getDireccionUsuarioById(idUsuario);
 
-        return ResponseEntity.status(result.StatusCode).body(result.Object);
+        return ResponseEntity.status(result.StatusCode).body(result);
 
     }
 
@@ -88,10 +82,13 @@ public class UsuarioRestController {
 //        return ResponseEntity.status(result.StatusCode).build();
 //    }
     
-    @PatchMapping
-    public ResponseEntity bajaLogica(@RequestBody Usuario usuarioBody) {
+    @PatchMapping("/{idUsuario}/{estatus}")
+    public ResponseEntity bajaLogica(@PathVariable("idUsuario") int idUsuario, @PathVariable("estatus") int estatus) {
+        Usuario usuarioBody = new Usuario();
+        usuarioBody.setIdUsuario(idUsuario);
+        usuarioBody.setEstatus(estatus);
         Result result = usuarioJpaDaoImplementation.softDelete(usuarioBody);
-        return ResponseEntity.status(result.StatusCode).build();
+        return ResponseEntity.status(result.StatusCode).body(result);
     }
     
     

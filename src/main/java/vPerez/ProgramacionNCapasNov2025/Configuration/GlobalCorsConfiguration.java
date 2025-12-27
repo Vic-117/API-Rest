@@ -29,6 +29,7 @@ public class GlobalCorsConfiguration {
         corsConfig.addAllowedMethod("POST");
         corsConfig.addAllowedMethod("PUT");
         corsConfig.addAllowedMethod("DELETE");
+        corsConfig.addAllowedMethod("PATCH");
         
         corsConfig.addAllowedHeader("*");
         source.registerCorsConfiguration("/**", corsConfig);

@@ -35,8 +35,18 @@ public class RolJpaDAOImplementation implements IRolJPA{
        List<Rol> roles = typedQuery.getResultList(); //obteniendo los multiples resultados arrojados 
        
        result.Object = roles;
-       result.Correct = true;
-       result.StatusCode = 200;
+       
+        if(roles == null){
+                 result.StatusCode = 400;
+            }else if(roles.size() == 0){
+                 result.StatusCode = 204;
+                  result.Correct = true;
+            }else{
+                result.StatusCode = 200;
+                 result.Correct = true;
+            
+            }
+
         }catch(Exception ex){
             result.StatusCode = 500;
             result.Correct = false;

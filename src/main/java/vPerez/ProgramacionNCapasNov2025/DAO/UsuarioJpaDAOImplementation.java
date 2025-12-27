@@ -35,10 +35,12 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
             TypedQuery<Usuario> typedQuery = entityManager.createQuery("FROM Usuario ORDER BY idUsuario DESC", Usuario.class);//crear consulta
             List<Usuario> usuarios = typedQuery.getResultList();//obtener resultados de consulta(Usuarios entidades)
             result.Object = usuarios;
-            if (usuarios.isEmpty() || typedQuery.getResultList() == null) {
+            if (usuarios == null) {
                 result.StatusCode = 400;
-
-            } else if (result.Correct) {
+            } else if (usuarios.size() == 0) {
+                result.StatusCode = 204;
+                result.Correct = true;
+            } else {
                 result.StatusCode = 200;
                 result.Correct = true;
             }
@@ -48,7 +50,6 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
             result.Correct = false;
             result.ErrorMesagge = ex.getLocalizedMessage();
             result.ex = ex;
-
         }
         return result;
     }
@@ -63,9 +64,6 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
             }
             usuario.direcciones.get(0).Usuario = new Usuario();
             usuario.direcciones.get(0).Usuario.setIdUsuario(usuario.getIdUsuario());
-//            Despues de que genere el id realizamos el proceso de la direccion
-//            usuario.direcciones.get(0).usuario = new Usuario();
-//            usuario.direcciones.get(0).usuario.setIdUsuario(usuario.getIdUsuario());
             entityManager.persist(usuario.direcciones.get(0));
             result.Correct = true;
             result.StatusCode = 201;
@@ -124,10 +122,11 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
                 result.Correct = true;
             } else {
                 result.Correct = false;
-                result.StatusCode = 500;
+                result.StatusCode = 404;
             }
 
         } catch (Exception ex) {
+             result.StatusCode = 500;
             result.Correct = false;
             result.ErrorMesagge = ex.getLocalizedMessage();
             result.ex = ex;
@@ -143,17 +142,19 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
         Result result = new Result();
         try {
             Usuario user = entityManager.find(new Usuario().getClass(), usuario.getIdUsuario());
+            user.setEstatus(usuario.getEstatus());
 
-            if (user != null) {
-                user.setEstatus(usuario.getEstatus());
-
-                result.Correct = true;
-                result.StatusCode = 200;
+            if (user.getEstatus() > 1 || user.getEstatus() < 0 ) {
+                   result.Correct = false;
+                result.StatusCode = 404;
+               
             } else {
-                result.Correct = false;
-                result.StatusCode = 400;
+                 result.Correct = true;
+                result.StatusCode = 200;
 
             }
+            
+    
 
         } catch (Exception ex) {
             result.StatusCode = 500;
@@ -174,26 +175,37 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
             Usuario usuarioBusqueda = entityManager.find(new Usuario().getClass(), idUsuario);
 
             StringBuilder jpql = new StringBuilder();
-            if (usuarioBusqueda.direcciones.size() == 0) {
-                jpql.append("SELECT DISTINCT u FROM Usuario u "
-                        + "WHERE u.idUsuario = :idUsuario");
-            } else {
+            if (idUsuario != 0) {
+                if (usuarioBusqueda.direcciones.size() == 0) {
+                    jpql.append("SELECT DISTINCT u FROM Usuario u "
+                            + "WHERE u.idUsuario = :idUsuario");
+                } else {
 
-                jpql.append("SELECT DISTINCT u FROM Usuario u "
-                        + "JOIN FETCH u.direcciones d "
-                        + "JOIN FETCH d.colonia col "
-                        + "JOIN FETCH col.municipio mun "
-                        + "JOIN FETCH mun.estado est "
-                        + "JOIN FETCH est.pais p "
-                        + "WHERE u.idUsuario = :idUsuario");//:idUsuario es el parametro pasado
+                    jpql.append("SELECT DISTINCT u FROM Usuario u "
+                            + "JOIN FETCH u.direcciones d "
+                            + "JOIN FETCH d.colonia col "
+                            + "JOIN FETCH col.municipio mun "
+                            + "JOIN FETCH mun.estado est "
+                            + "JOIN FETCH est.pais p "
+                            + "WHERE u.idUsuario = :idUsuario");//:idUsuario es el parametro pasado
+                }
+
+                Usuario usuario = entityManager.createQuery(jpql.toString(), Usuario.class) //Usando el jpql sobre la entidad usuarioJPA
+                        .setParameter("idUsuario", idUsuario)//Pasando parametros a la query
+                        .getSingleResult();
+                result.Object = usuario;
+                if (usuario == null) {
+                    result.StatusCode = 400;
+                } else {
+                    result.StatusCode = 200;
+                    result.Correct = true;
+
+                }
+               
+            } else {
+                result.StatusCode = 404;
             }
 
-            Usuario usuario = entityManager.createQuery(jpql.toString(), Usuario.class) //Usando el jpql sobre la entidad usuarioJPA
-                    .setParameter("idUsuario", idUsuario)//Pasando parametros a la query
-                    .getSingleResult();
-            result.Object = usuario;
-            result.Correct = true;
-            result.StatusCode = 200;
         } catch (Exception ex) {
             result.Correct = false;
             result.ErrorMesagge = ex.getLocalizedMessage();

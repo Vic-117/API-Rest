@@ -42,10 +42,10 @@ public class DireccionRestController {
         return ResponseEntity.status(result.StatusCode).build();
     }
     
-    @DeleteMapping("eliminar/{idDireccion}")
+    @DeleteMapping("{idDireccion}")
     public ResponseEntity direccionDelete(@PathVariable("idDireccion") int idDireccion){
         Result result = direccionJpaDaoImplementation.delete(idDireccion);
-        return ResponseEntity.status(result.StatusCode).build();
+        return ResponseEntity.status(result.StatusCode).body(result);
     }
     
     
