@@ -60,12 +60,12 @@ public class DireccionJpaDAOImplementation implements IDireccionJPA {
 
             if (direccion != null) {
                 entityManager.remove(direccion);
-                result.Object = "Operacion realizada con exito";
+//                result.Object = "Operacion realizada con exito";
                 result.Correct = true;
                 result.StatusCode = 200;
 
             } else {
-                result.Object = "La operación fracasó con exito xd";
+//                result.Object = "La operación fracasó con exito xd";
                 result.Correct = false;
                 result.StatusCode = 404;
             }
@@ -85,18 +85,28 @@ public class DireccionJpaDAOImplementation implements IDireccionJPA {
     public Result add(Direccion direccion, int idUsuario) {
         Result result = new Result();
         try {
-            direccion.Usuario = new Usuario();
-            direccion.Usuario.setIdUsuario(idUsuario);
-            entityManager.persist(direccion);
-            result.Correct = true;
-
-            if (result.Correct) {
-                result.Object = "Realizado";
-                result.StatusCode = 200;
-            } else {
-                result.StatusCode = 500;
-                result.Object = "Fracaso";
+            
+            if(direccion != null){
+                direccion.Usuario = new Usuario();
+                direccion.Usuario.setIdUsuario(idUsuario);
+                entityManager.persist(direccion);
+                result.Correct = true;
+                  result.Object = "Realizado";
+                  result.StatusCode = 201;
+                
+            }else{
+                result.Correct = false;
+                result.StatusCode = 400;
+                 result.Object = "Fracaso";
             }
+
+//            if (result.Correct) {
+//                result.Object = "Realizado";
+//                result.StatusCode = 201;
+//            } else {
+//                result.StatusCode = 500;
+//                result.Object = "Fracaso";
+//            }
         } catch (Exception ex) {
             result.StatusCode = 500;
             result.Correct = false;

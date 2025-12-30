@@ -34,11 +34,11 @@ public class DireccionRestController {
         return ResponseEntity.status(result.StatusCode).build();
     }
     
-    @PutMapping("editar")
-    public ResponseEntity direccionUpdate( @RequestBody Usuario usuarioBody){
+    @PutMapping("{idDireccion}")
+    public ResponseEntity direccionUpdate( @RequestBody Direccion direccionBody,@PathVariable("idDireccion")int idDireccion){
 //        direccionBody.setIdDireccion(idDireccion);
 //    usuarioBody.direcciones.add(new Direccion());
-        Result result = direccionJpaDaoImplementation.update(usuarioBody.direcciones.get(0));
+        Result result = direccionJpaDaoImplementation.update(direccionBody);
         return ResponseEntity.status(result.StatusCode).build();
     }
     

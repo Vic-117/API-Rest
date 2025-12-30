@@ -50,6 +50,7 @@ public class Usuario {
     private String celular;
     private String curp;
     private int estatus;
+    private String imagen;
 
 //    @OneToMany(mappedBy = "Usuario",  cascade = CascadeType.ALL,  orphanRemoval = true,fetch = FetchType.LAZY)//Con cacadeType.ALL las operaciones afectan tambien a las otras entidades
     @OneToMany(mappedBy = "Usuario", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)//Con cacadeType.ALL las operaciones afectan tambien a las otras entidades
@@ -157,6 +158,8 @@ public class Usuario {
     public void setEstatus(int estatus) {
         this.estatus = estatus;
     }
+    
+    
 
 //    public List<Direccion> getDirecciones() {
 //        return direcciones;
@@ -165,5 +168,13 @@ public class Usuario {
 //    public void setDirecciones(List<Direccion> direcciones) {
 //        this.direcciones = direcciones;
 //    }
+
+    public String getImagen() {
+        return imagen;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
+    }
 
 }

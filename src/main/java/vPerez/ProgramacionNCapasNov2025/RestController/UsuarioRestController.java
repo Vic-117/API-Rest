@@ -51,14 +51,14 @@ public class UsuarioRestController {
     public ResponseEntity addUsuario(@RequestBody Usuario body) {
         Result result = usuarioJpaDaoImplementation.add(body);
 
-        return ResponseEntity.status(result.StatusCode).build();
+        return ResponseEntity.status(result.StatusCode).body(result.Correct);
     }
     
     @PutMapping("{idUsuario}")
     public ResponseEntity updateUsuario(@RequestBody Usuario usuarioBody){
         Result result = usuarioJpaDaoImplementation.update(usuarioBody);
         
-        return ResponseEntity.status(result.StatusCode).build();
+        return ResponseEntity.status(result.StatusCode).body(result);
         
     }
     
@@ -72,7 +72,7 @@ public class UsuarioRestController {
     public ResponseEntity busquedaAbierta(@RequestBody Usuario usuarioBody){
         Result result = usuarioJpaDaoImplementation.GetAllDinamico(usuarioBody);
         
-        return ResponseEntity.status(result.StatusCode).body(result.Objects);
+        return ResponseEntity.status(result.StatusCode).body(result);
     }
     
 //    @PatchMapping("{idUsuario}")

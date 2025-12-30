@@ -59,17 +59,23 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
     public Result add(Usuario usuario) {
         Result result = new Result();
         try {
-            if (usuario == null) {
-                entityManager.persist(usuario);//Para que genere el id
-            }
+           if(usuario!=null){
+           
+              entityManager.persist(usuario);//Para que genere el id
+            
             usuario.direcciones.get(0).Usuario = new Usuario();
             usuario.direcciones.get(0).Usuario.setIdUsuario(usuario.getIdUsuario());
             entityManager.persist(usuario.direcciones.get(0));
             result.Correct = true;
+            
             result.StatusCode = 201;
+           }else{
+                result.StatusCode = 400;
+           
+           }
 
         } catch (Exception ex) {
-            result.StatusCode = 400;
+            result.StatusCode = 500;
             result.Correct = false;
             result.ErrorMesagge = ex.getLocalizedMessage();
             result.ex = ex;
@@ -84,9 +90,11 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
         try {
 
             Usuario user = entityManager.find(usuario.getClass(), usuario.getIdUsuario());//Obtiene el usuario con ese id de la bd
+            usuario.setImagen(user.getImagen());
             if (user != null) {
-
+                usuario.direcciones = new ArrayList<>();
                 usuario.direcciones.clear();
+                
                 for (Direccion direccion : user.direcciones) {
                     usuario.direcciones.add(direccion);
 
@@ -95,8 +103,12 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
                 result.Object = usuario;
                 entityManager.merge(usuario);//Actualiza incluido a direcciones, las borra por que se envian vacias
                 result.Correct = true;
+                result.StatusCode = 200;
             } else {
+                
+                
                 result.Correct = false;
+                result.StatusCode = 404;
 //                throw new Exception("Error al actualizar");
             }
 
@@ -106,7 +118,7 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
             result.ErrorMesagge = ex.getLocalizedMessage();
             result.ex = ex;
         }
-        result.StatusCode = 201;
+      
         return result;
     }
 
@@ -277,22 +289,28 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
             if (usuario.rol.getIdRol() != 0) {
                 queryUsuarios.setParameter("idRol", usuario.rol.getIdRol());
             }
-
-            List<Usuario> usuarios = queryUsuarios.getResultList();
-            result.Objects = new ArrayList<>();
-
-            for (Usuario item : usuarios) {
-                result.Objects.add(item);
+                List<Usuario> usuarios = queryUsuarios.getResultList();
+            if(usuarios.isEmpty()){
+                result.StatusCode = 204;
+            }else if(usuarios == null){
+                   result.StatusCode = 404;
+            }else{
+                result.Objects = new ArrayList<>();
+//                result.Object = new ArrayList<>();
+                for (Usuario item : usuarios) {
+                    result.Objects.add(item);
+                }
+                result.StatusCode = 200;
             }
 
         } catch (Exception ex) {
-            result.StatusCode = 500;
+            result.StatusCode = 400;
             result.Correct = false;
             result.ex = ex;
             result.ErrorMesagge = ex.getLocalizedMessage();
 
         }
-        result.StatusCode = 200;
+//        result.StatusCode = 200;
         return result;
     }
 
