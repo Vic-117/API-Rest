@@ -59,20 +59,20 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
     public Result add(Usuario usuario) {
         Result result = new Result();
         try {
-           if(usuario!=null){
-           
-              entityManager.persist(usuario);//Para que genere el id
-            
-            usuario.direcciones.get(0).Usuario = new Usuario();
-            usuario.direcciones.get(0).Usuario.setIdUsuario(usuario.getIdUsuario());
-            entityManager.persist(usuario.direcciones.get(0));
-            result.Correct = true;
-            
-            result.StatusCode = 201;
-           }else{
+            if (usuario != null) {
+
+                entityManager.persist(usuario);//Para que genere el id
+
+                usuario.direcciones.get(0).Usuario = new Usuario();
+                usuario.direcciones.get(0).Usuario.setIdUsuario(usuario.getIdUsuario());
+                entityManager.persist(usuario.direcciones.get(0));
+                result.Correct = true;
+
+                result.StatusCode = 201;
+            } else {
                 result.StatusCode = 400;
-           
-           }
+
+            }
 
         } catch (Exception ex) {
             result.StatusCode = 500;
@@ -94,7 +94,7 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
             if (user != null) {
                 usuario.direcciones = new ArrayList<>();
                 usuario.direcciones.clear();
-                
+
                 for (Direccion direccion : user.direcciones) {
                     usuario.direcciones.add(direccion);
 
@@ -105,8 +105,7 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
                 result.Correct = true;
                 result.StatusCode = 200;
             } else {
-                
-                
+
                 result.Correct = false;
                 result.StatusCode = 404;
 //                throw new Exception("Error al actualizar");
@@ -118,7 +117,7 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
             result.ErrorMesagge = ex.getLocalizedMessage();
             result.ex = ex;
         }
-      
+
         return result;
     }
 
@@ -138,7 +137,7 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
             }
 
         } catch (Exception ex) {
-             result.StatusCode = 500;
+            result.StatusCode = 500;
             result.Correct = false;
             result.ErrorMesagge = ex.getLocalizedMessage();
             result.ex = ex;
@@ -156,17 +155,15 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
             Usuario user = entityManager.find(new Usuario().getClass(), usuario.getIdUsuario());
             user.setEstatus(usuario.getEstatus());
 
-            if (user.getEstatus() > 1 || user.getEstatus() < 0 ) {
-                   result.Correct = false;
+            if (user.getEstatus() > 1 || user.getEstatus() < 0) {
+                result.Correct = false;
                 result.StatusCode = 404;
-               
+
             } else {
-                 result.Correct = true;
+                result.Correct = true;
                 result.StatusCode = 200;
 
             }
-            
-    
 
         } catch (Exception ex) {
             result.StatusCode = 500;
@@ -213,7 +210,7 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
                     result.Correct = true;
 
                 }
-               
+
             } else {
                 result.StatusCode = 404;
             }
@@ -236,8 +233,8 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
     public Result addMany(List<Usuario> usuarios) {
         Result result = new Result();
         try {
-
-            int i = 0;
+            if(usuarios != null){
+                 int i = 0;
             result.Objects = new ArrayList<>();
             for (Usuario usuario : usuarios) {
                 entityManager.persist(usuario);
@@ -258,8 +255,14 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
             entityManager.flush();
 
             result.Correct = true;
+            result.StatusCode = 200;
+            }else{
+                result.StatusCode = 404;
+            }
+           
 
         } catch (Exception ex) {
+            result.StatusCode = 500;
             result.Correct = false;
             result.ErrorMesagge = ex.getLocalizedMessage();
             result.ex = ex;
@@ -268,6 +271,7 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
     }
 
     //BUSQUEDA DINAMICA
+    @Transactional
     @Override
     public Result GetAllDinamico(Usuario usuario) {
         Result result = new Result();
@@ -289,12 +293,12 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
             if (usuario.rol.getIdRol() != 0) {
                 queryUsuarios.setParameter("idRol", usuario.rol.getIdRol());
             }
-                List<Usuario> usuarios = queryUsuarios.getResultList();
-            if(usuarios.isEmpty()){
+            List<Usuario> usuarios = queryUsuarios.getResultList();
+            if (usuarios.isEmpty()) {
                 result.StatusCode = 204;
-            }else if(usuarios == null){
-                   result.StatusCode = 404;
-            }else{
+            } else if (usuarios == null) {
+                result.StatusCode = 404;
+            } else {
                 result.Objects = new ArrayList<>();
 //                result.Object = new ArrayList<>();
                 for (Usuario item : usuarios) {
@@ -312,6 +316,32 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
         }
 //        result.StatusCode = 200;
         return result;
+    }
+
+    @Transactional
+    @Override
+    public Result updateFoto(Usuario usuario) {
+        Result result = new Result();
+        try {
+            Usuario user = new Usuario();
+            user = entityManager.find(Usuario.class, usuario.getIdUsuario());
+            if (user != null) {
+                user.setImagen(usuario.getImagen());
+                result.Correct = true;
+                result.StatusCode = 200;
+            } else {
+                 result.StatusCode = 404;
+                 result.Correct = false;
+            }
+
+        } catch (Exception e) {
+            result.Correct = false;
+            result.StatusCode = 400;
+            result.ex = e;
+            result.ErrorMesagge = e.getLocalizedMessage();
+        }
+        return result;
+
     }
 
 }

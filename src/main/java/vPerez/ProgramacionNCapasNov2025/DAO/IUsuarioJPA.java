@@ -29,4 +29,6 @@ public interface IUsuarioJPA {
     public Result addMany(List<Usuario> usuarios);
     
     Result GetAllDinamico(Usuario usuario);
+    
+     public Result updateFoto(Usuario usuario);
 }
