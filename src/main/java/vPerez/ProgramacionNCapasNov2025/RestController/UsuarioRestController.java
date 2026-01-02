@@ -15,6 +15,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -206,6 +207,8 @@ public class UsuarioRestController {
             System.out.println( ex.getCause() + ex.getLocalizedMessage());
         }
     }
+    
+    
     public List<Usuario> LeerArchivo(File archivo) {//
         List<Usuario> usuarios = new ArrayList<>();
         try (
@@ -350,14 +353,21 @@ public class UsuarioRestController {
         String rutaLog = System.getProperty("user.dir")+"\\src\\main\\resources\\Logs\\logProcesamiento.txt";
         try( BufferedReader lector = new BufferedReader(new FileReader(rutaLog))){
             String linea;
-            String horaActual = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+//            String horaActualString = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
+            LocalTime horaActual= LocalTime.now();
              lector.readLine();
             while((linea = lector.readLine())!= null){
                 String tokenArchivo = linea.split("\\|")[0];
-                String tiempo = linea.split("\\|")[2].split(" ")[1];//cambiar, el formato está incorrecto
+                LocalTime tiempo =LocalTime.parse((linea.split("\\|")[2].split(" ")[1]),DateTimeFormatter.ofPattern("HH:mm:ss"));
                 
-                if(tokenArchivo == token){
+                if(tokenArchivo.equals(token)){
                     System.out.println(token);
+                    if(horaActual.isBefore(tiempo.plusMinutes(1L).plusSeconds(30L))){
+                        System.out.println("dentro del tiempo"+"\n");
+                    }else{
+                        System.out.println("Fuera de tiempo");
+                        
+                    }
                 }else{
                 
                 }
