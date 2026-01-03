@@ -234,7 +234,7 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
         Result result = new Result();
         try {
             if(usuarios != null){
-                 int i = 0;
+//                 int i = 0;
             result.Objects = new ArrayList<>();
             for (Usuario usuario : usuarios) {
                 entityManager.persist(usuario);
@@ -245,13 +245,13 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
                 entityManager.persist(usuario.direcciones.get(0));
 
                 //AÑADIDO RECIEN 16/12/2025
-                if (i % batchSize == 0 && i > 0) {
-                    entityManager.flush();
-                    entityManager.clear();
-                }
+//                if (i % batchSize == 0 && i > 0) {
+//                    entityManager.flush();
+//                    entityManager.clear();
+//                }
 
             }
-            //AÑADIDO RECIEN 16/12/2025
+
             entityManager.flush();
 
             result.Correct = true;

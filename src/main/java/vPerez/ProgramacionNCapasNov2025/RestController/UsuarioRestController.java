@@ -151,15 +151,14 @@ public class UsuarioRestController {
         String rutaAbsoluta = ruta + "/" + rutaArchivo + "/" + fecha + archivo.getOriginalFilename();
 
 //                                                                   ENCRIPTACION DEL NOMBRE 
-
-        String nombre = (archivo.getOriginalFilename().split("\\.")[0])+fecha;
+        String nombre = (archivo.getOriginalFilename().split("\\.")[0]) + fecha;
         MessageDigest md = MessageDigest.getInstance("SHA3-256");
         byte[] resultado = md.digest(nombre.getBytes());
         StringBuilder hexString = new StringBuilder();
-        for(byte b : resultado){
+        for (byte b : resultado) {
             hexString.append(String.format("%02x", b));
         }
-        
+
         String nombreEncriptado = hexString.toString();
 
         //GUARDADO DEL ARCHIVO
@@ -181,8 +180,8 @@ public class UsuarioRestController {
 //        model.addAttribute("Errores", errores);
         result.Objects = new ArrayList<>();
         if (!errores.isEmpty()) {
-            result.Correct = true;
-            result.Object = new ArrayList<>();
+            result.Correct = false;
+//            result.Object = new ArrayList<>();
             result.Object = errores;
 //            model.addAttribute("Errores", errores);//Mandando errores
 //            model.addAttribute("isError", true);
@@ -190,7 +189,7 @@ public class UsuarioRestController {
         } else {
 //            model.addAttribute("isError", false);
             result.Correct = true;
-            result.Objects.add(nombreEncriptado); 
+            result.Objects.add(nombreEncriptado);
             result.StatusCode = 200;
             sesion.setAttribute("archivoCargaMasiva", rutaAbsoluta);//Añadiendo atributos a la ruta
         }
@@ -198,17 +197,16 @@ public class UsuarioRestController {
         return ResponseEntity.status(result.StatusCode).body(result);
     }
 
-    public void EscribirArchivo(String fecha, String token,String rutaCarga,Boolean estatus) throws IOException{
-         String ruta = System.getProperty("user.dir")+"\\src\\main\\resources\\Logs\\logProcesamiento.txt";
-        try( BufferedWriter escritor = new BufferedWriter(new FileWriter(ruta,true))){
+    public void EscribirArchivo(String fecha, String token, String rutaCarga, Boolean estatus) throws IOException {
+        String ruta = System.getProperty("user.dir") + "\\src\\main\\resources\\Logs\\logProcesamiento.txt";
+        try (BufferedWriter escritor = new BufferedWriter(new FileWriter(ruta, true))) {
             escritor.newLine();
-            escritor.write(token+"|"+rutaCarga+"|"+fecha+"|"+"activo");
-        }catch(Exception ex){
-            System.out.println( ex.getCause() + ex.getLocalizedMessage());
+            escritor.write(token + "|" + rutaCarga + "|" + fecha + "|" + "activo");
+        } catch (Exception ex) {
+            System.out.println(ex.getCause() + ex.getLocalizedMessage());
         }
     }
-    
-    
+
     public List<Usuario> LeerArchivo(File archivo) {//
         List<Usuario> usuarios = new ArrayList<>();
         try (
@@ -338,79 +336,65 @@ public class UsuarioRestController {
         return erroresCarga;
     }
 
-    @GetMapping("/CargaMasiva/Procesar/{token}")
-    public ResponseEntity ProcesarArchivo(@PathVariable("token")String token,HttpSession sesion) {
-         //Recuperar el archivo guardado 
-        
+    @PostMapping("/CargaMasiva/Procesar/{token}")
+    public ResponseEntity ProcesarArchivo(@PathVariable("token") String token, HttpSession sesion) {
+        //Recuperar el archivo guardado 
+
         //leer token y comparar
-        
         // si el token es igual se puede procesar
-        
         //si el token no es igual no procesar
-        
         // si la fecha supera la fecha limite no procesar
-        
-        String rutaLog = System.getProperty("user.dir")+"\\src\\main\\resources\\Logs\\logProcesamiento.txt";
-        try( BufferedReader lector = new BufferedReader(new FileReader(rutaLog))){
+        Result resultAdd = new Result();
+        String rutaLog = System.getProperty("user.dir") + "\\src\\main\\resources\\Logs\\logProcesamiento.txt";
+        try (BufferedReader lector = new BufferedReader(new FileReader(rutaLog))) {
             String linea;
 //            String horaActualString = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
-            LocalTime horaActual= LocalTime.now();
-             lector.readLine();
-            while((linea = lector.readLine())!= null){
+            LocalTime horaActual = LocalTime.now();
+            lector.readLine();
+            while ((linea = lector.readLine()) != null) {
                 String tokenArchivo = linea.split("\\|")[0];
-                LocalTime tiempo =LocalTime.parse((linea.split("\\|")[2].split(" ")[1]),DateTimeFormatter.ofPattern("HH:mm:ss"));
-                
-                if(tokenArchivo.equals(token)){
+                LocalTime tiempo = LocalTime.parse((linea.split("\\|")[2].split(" ")[1]), DateTimeFormatter.ofPattern("HH:mm:ss"));
+
+                if (tokenArchivo.equals(token)) {
                     System.out.println(token);
-                    if(horaActual.isBefore(tiempo.plusMinutes(1L).plusSeconds(30L))){
-                        System.out.println("dentro del tiempo"+"\n");
-                    }else{
+                    if (horaActual.isBefore(tiempo.plusMinutes(1L).plusSeconds(30L))) {
+                        String ruta = (linea.split("\\|")[1]);
+                        System.out.println("dentro del tiempo" + "\n");
+
+                        String extensionArchivo = new File(ruta).getName().split("\\.")[1];
+
+                       
+                        if (extensionArchivo.equals("txt")) {
+                            List<Usuario> usuarios = LeerArchivo(new File(ruta));
+                           resultAdd = usuarioJpaDaoImplementation.addMany(usuarios);
+
+                        } else {
+                            //Guardando usuarios de la lista de usuarios creada con el metodo leer archivo
+                            List<Usuario> usuarios = LeerArchivoExcel(new File(ruta));
+
+                             resultAdd = usuarioJpaDaoImplementation.addMany(usuarios);
+
+                        }
+
+                    } else {
                         System.out.println("Fuera de tiempo");
-                        
+                        resultAdd.Object = "Excediste el tiempo limite para subir el archivo";
+                        resultAdd.StatusCode = 400;
+
                     }
-                }else{
-                
+                    break;
+                } else {
+                    resultAdd.Object = "token no valido";
                 }
-                
+
             }
-        }catch(Exception ex){
-            System.out.println( ex.getCause() + ex.getLocalizedMessage());
+        } catch (Exception ex) {
+            System.out.println(ex.getCause() + ex.getLocalizedMessage());
         }
-        
-        //Obteniendo ruta del archivo que se registró en metodo CargaMasiva()
-        String ruta = sesion.getAttribute("archivoCargaMasiva").toString();
-        String extensionArchivo = new File(ruta).getName().split("\\.")[1];
-//        Result result;
 
-        if (extensionArchivo.equals("txt")) {
-            List<Usuario> usuarios = LeerArchivo(new File(ruta));
-//            usuarioDaoImplementation.AddMany(usuarios);
-//            ModelMapper modelMapper = new ModelMapper();
-//            List<vPerez.ProgramacionNCapasNov2025.JPA.Usuario> usuariosJPA = new ArrayList<>();
-//            for (Usuario usuario : usuarios) {
-//                vPerez.ProgramacionNCapasNov2025.JPA.Usuario usuarioJPA = modelMapper.map(usuario, vPerez.ProgramacionNCapasNov2025.JPA.Usuario.class);
-//                usuariosJPA.add(usuarioJPA);
-//            }
-//            usuarioDaoImplementation.AddMany(usuarios);
-//            Result resultCargaMasiva = usuarioJpaDAOImplementation.addMany(usuariosJPA);
 
-        } else {
-            //Guardando usuarios de la lista de usuarios creada con el metodo leer archivo
-            List<Usuario> usuarios = LeerArchivoExcel(new File(ruta));
-//            ModelMapper modelMapper = new ModelMapper();
-//            List<vPerez.ProgramacionNCapasNov2025.JPA.Usuario> usuariosJPA = new ArrayList<>();
-//            for (Usuario usuario : usuarios) {
-//                vPerez.ProgramacionNCapasNov2025.JPA.Usuario usuarioJPA = modelMapper.map(usuario, vPerez.ProgramacionNCapasNov2025.JPA.Usuario.class);
-//                usuariosJPA.add(usuarioJPA);
-//            }
-//            usuarioDaoImplementation.AddMany(usuarios);
-//            usuarioJpaDAOImplementation.addMany(usuariosJPA);
-
-        }
-        sesion.removeAttribute("archivoCargaMasiva");
 //        new File(ruta).delete();//Ya cuando se terminaron las operaciones con el archivo, se elimina de la carpeta
-
-        return ResponseEntity.status(200).build();
+        return ResponseEntity.status(resultAdd.StatusCode).body(resultAdd);
     }
 
 }
