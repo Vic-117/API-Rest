@@ -5,6 +5,7 @@
 package vPerez.ProgramacionNCapasNov2025.RestController;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -87,10 +88,25 @@ public class UsuarioRestController {
     }
 
     @PutMapping("{idUsuario}")
-    public ResponseEntity updateUsuario(@RequestBody Usuario usuarioBody) {
-        Result result = usuarioJpaDaoImplementation.update(usuarioBody);
+    public ResponseEntity updateUsuario(@Valid @RequestBody Usuario usuarioBody, BindingResult bindingResult) {
+        Result result = new Result();
+        if (bindingResult.hasErrors()) {
+            result.Correct = false;
+            result.StatusCode = 202;
+//            result.Objects = new ArrayList<>();
+            bindingResult.getFieldError();
+            result.Object = "Tienes errores";
 
-        return ResponseEntity.status(result.StatusCode).body(result);
+//            List<String> errors = bindingResult.getAllErrors()
+//                    .stream()
+//                    .map(ObjectError::getDefaultMessage)
+//                    .toList();
+//            return ResponseEntity.badRequest().body(errors);
+
+        } else {
+            result = usuarioJpaDaoImplementation.update(usuarioBody);
+        }
+            return ResponseEntity.status(result.StatusCode).body(result);
 
     }
 
@@ -363,16 +379,15 @@ public class UsuarioRestController {
 
                         String extensionArchivo = new File(ruta).getName().split("\\.")[1];
 
-                       
                         if (extensionArchivo.equals("txt")) {
                             List<Usuario> usuarios = LeerArchivo(new File(ruta));
-                           resultAdd = usuarioJpaDaoImplementation.addMany(usuarios);
+                            resultAdd = usuarioJpaDaoImplementation.addMany(usuarios);
 
                         } else {
                             //Guardando usuarios de la lista de usuarios creada con el metodo leer archivo
                             List<Usuario> usuarios = LeerArchivoExcel(new File(ruta));
 
-                             resultAdd = usuarioJpaDaoImplementation.addMany(usuarios);
+                            resultAdd = usuarioJpaDaoImplementation.addMany(usuarios);
 
                         }
 
@@ -391,7 +406,6 @@ public class UsuarioRestController {
         } catch (Exception ex) {
             System.out.println(ex.getCause() + ex.getLocalizedMessage());
         }
-
 
 //        new File(ruta).delete();//Ya cuando se terminaron las operaciones con el archivo, se elimina de la carpeta
         return ResponseEntity.status(resultAdd.StatusCode).body(resultAdd);
