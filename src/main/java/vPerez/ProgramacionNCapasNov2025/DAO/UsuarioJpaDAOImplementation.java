@@ -68,7 +68,7 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
                 entityManager.persist(usuario.direcciones.get(0));
                 result.Correct = true;
 
-                result.StatusCode = 201;
+                result.StatusCode = 200;
             } else {
                 result.StatusCode = 400;
 
@@ -297,7 +297,7 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
             if (usuarios.isEmpty()) {
                 result.StatusCode = 204;
             } else if (usuarios == null) {
-                result.StatusCode = 404;
+                result.StatusCode = 400;
             } else {
                 result.Objects = new ArrayList<>();
 //                result.Object = new ArrayList<>();
@@ -308,7 +308,7 @@ public class UsuarioJpaDAOImplementation implements IUsuarioJPA {
             }
 
         } catch (Exception ex) {
-            result.StatusCode = 400;
+            result.StatusCode = 500;
             result.Correct = false;
             result.ex = ex;
             result.ErrorMesagge = ex.getLocalizedMessage();

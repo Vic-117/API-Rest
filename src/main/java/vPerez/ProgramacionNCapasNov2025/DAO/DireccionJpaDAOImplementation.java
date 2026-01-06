@@ -44,6 +44,7 @@ public class DireccionJpaDAOImplementation implements IDireccionJPA {
 
         } catch (Exception ex) {
             result.Correct = false;
+            result.StatusCode = 500;
             result.ErrorMesagge = ex.getLocalizedMessage();
             result.ex = ex;
         }

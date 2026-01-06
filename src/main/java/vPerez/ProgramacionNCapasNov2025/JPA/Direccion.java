@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  *
@@ -28,14 +29,18 @@ public class Direccion {
     @Column(name = "iddireccion")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int IdDireccion;
+    @NotEmpty
     private String calle;
     @Column(name = "numerointerior")
     private String numeroInterior;
+    @NotEmpty
     @Column(name = "numeroexterior")
     private String numeroExterior;
+//    @NotEmpty
     @ManyToOne
     @JoinColumn(name="idcolonia")
     public Colonia colonia;
+//    @NotEmpty
     @JsonIgnore
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="idusuario")

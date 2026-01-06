@@ -4,6 +4,10 @@
  */
 package vPerez.ProgramacionNCapasNov2025.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.io.BufferedReader;
@@ -57,6 +61,7 @@ import vPerez.ProgramacionNCapasNov2025.service.ValidationService;
  *
  * @author digis
  */
+@Tag(name = "UsuarioRestController", description = "maneja las peticiones que engloban al usuario en el sistema")
 @RestController
 @RequestMapping("api/usuarios")
 public class UsuarioRestController {
@@ -66,12 +71,25 @@ public class UsuarioRestController {
     @Autowired
     private ValidationService ValidationService;
 
+    @Operation(summary = "getAll", description = "Obtiene todos los usuarios")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "500", description = "Ha sucedio un error desconocido que puede tener que ver con la petición"),
+        @ApiResponse(responseCode = "400", description = "Peticion incorrecta, por lo que no se encontraron usuarios"),
+        @ApiResponse(responseCode = "204", description = "Peticion correcta, pero no se encontraron usuarios"),
+        @ApiResponse(responseCode = "200", description = "Todo correcto")
+    })
     @GetMapping
     public ResponseEntity getAll() {
         Result result = usuarioJpaDaoImplementation.getAll();
         return ResponseEntity.status(result.StatusCode).body(result);
     }
-
+    
+    @Operation(summary = "getById",description = "Obtiene el usuario por su ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Correcto al cargar"),
+        @ApiResponse(responseCode = "400", description = "Algo falló en la petición"),
+        @ApiResponse(responseCode = "404", description = "No hay usuarios que mostrar")
+    })
     @GetMapping("{idUsuario}")
     public ResponseEntity getById(@PathVariable("idUsuario") int idUsuario) {
         Result result = usuarioJpaDaoImplementation.getDireccionUsuarioById(idUsuario);
@@ -80,6 +98,12 @@ public class UsuarioRestController {
 
     }
 
+    @Operation(summary = "addUsuario", description = "Agrega un nuevo usuario")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Usuario guardado"),
+        @ApiResponse(responseCode = "400", description = "Hay algun error con la información"),
+        @ApiResponse(responseCode = "500", description = "Hay algun error en el servidor")
+    })
     @PostMapping
     public ResponseEntity addUsuario(@RequestBody Usuario body) {
         Result result = usuarioJpaDaoImplementation.add(body);
@@ -87,6 +111,12 @@ public class UsuarioRestController {
         return ResponseEntity.status(result.StatusCode).body(result.Correct);
     }
 
+    @Operation(summary = "updateUsuario",description="actualiza el usuario")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description="Actualizado"),
+        @ApiResponse(responseCode = "400", description="No se pudo actualizar, falta algún dato o estan incorrectos"),
+        @ApiResponse(responseCode = "500", description="Error desconocido en el servidor")
+    })
     @PutMapping("{idUsuario}")
     public ResponseEntity updateUsuario(@Valid @RequestBody Usuario usuarioBody, BindingResult bindingResult) {
         Result result = new Result();
@@ -110,12 +140,25 @@ public class UsuarioRestController {
 
     }
 
+    @Operation(summary = "deleteUsuario", description="Borra el usuario")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200",description="Usuario eliminado"),
+        @ApiResponse(responseCode = "404",description="Usuario no encontrado por lo que no se pudo eliminar"),
+        @ApiResponse(responseCode = "500",description="Algo falló en el seridor"),
+    })
     @DeleteMapping("{idUsuario}")
     public ResponseEntity deleteUsuario(@PathVariable("idUsuario") int idUsuario) {
         Result result = usuarioJpaDaoImplementation.delete(idUsuario);
         return ResponseEntity.status(result.StatusCode).body(result);
     }
 
+    @Operation(summary = "busquedaAbierta",description = "Busca el usuario por nombre, apellidos y rol")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description="Busqueda exitosa con usuarios encontrados"),
+        @ApiResponse(responseCode = "204", description="La busqueda se realizó con exito pero no hay ningun usuario que coincida con los parametros especificados"),
+        @ApiResponse(responseCode = "400", description="Algun parametro fue llenado erroneamente por lo que no se pudo completar la busqueda"),
+        @ApiResponse(responseCode = "500", description="Error desconocido en el servidor")
+    })
     @PostMapping("/busqueda")
     public ResponseEntity busquedaAbierta(@RequestBody Usuario usuarioBody) {
         Result result = usuarioJpaDaoImplementation.GetAllDinamico(usuarioBody);
@@ -129,6 +172,13 @@ public class UsuarioRestController {
 //        Result result = usuarioJpaDaoImplementation.softDelete(usuarioBody);
 //        return ResponseEntity.status(result.StatusCode).build();
 //    }
+    
+    @Operation(summary = "bajaLogica", description = "Desactiva el usuario pero no lo elimina de la base de datos")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "500", description = "Error desconocido en el servidor"),
+        @ApiResponse(responseCode = "404", description = "Estatus Incorrecto"),
+        @ApiResponse(responseCode = "200", description = "Desactivacion realizada")
+    })
     @PatchMapping("/{idUsuario}/{estatus}")
     public ResponseEntity bajaLogica(@PathVariable("idUsuario") int idUsuario, @PathVariable("estatus") int estatus) {
         Usuario usuarioBody = new Usuario();
@@ -138,6 +188,12 @@ public class UsuarioRestController {
         return ResponseEntity.status(result.StatusCode).body(result);
     }
 
+    @Operation(summary = "cambiarImagen", description="Actualiza solo la imagen del usuario")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description="Foto actualizado"),
+        @ApiResponse(responseCode = "404", description="Usuario inexistente"),
+        @ApiResponse(responseCode = "400", description="Peticion no valida")
+    })
     @PostMapping("/Imagen/{idUsuario}")
     public ResponseEntity cambiarImagen(@RequestBody Usuario usuarioBody, @PathVariable("idUsuario") int idUsuario) {
 
@@ -145,6 +201,13 @@ public class UsuarioRestController {
         return ResponseEntity.status(result.StatusCode).body(result);
     }
 
+    @Operation(summary = "CargaMasiva", description="Carga del archivo")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "archivo guardado en el servidor"),
+        @ApiResponse(responseCode = "422", description = "Error en los datos cargados en el archivo"),
+        @ApiResponse(responseCode = "500", description = "Falla al guardar el archivo")
+        
+    })
     @PostMapping("/CargaMasiva")
     public ResponseEntity CargaMasiva(@RequestParam("archivo") MultipartFile archivo, Model model, HttpSession sesion) throws IOException, NoSuchAlgorithmException {
 
@@ -352,6 +415,12 @@ public class UsuarioRestController {
         return erroresCarga;
     }
 
+    @Operation(summary = "ProcesarArchivo", description = "Encargado de guardar los datos del archivo en la base de datos")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200",description = "Usuarios guardados en la base de datos"),
+        @ApiResponse(responseCode = "404",description = "Error durante el almacenamiento de los datos, usuarios no guardados"),
+        @ApiResponse(responseCode = "500",description = "Error desconocido en el servidor")
+    } )
     @PostMapping("/CargaMasiva/Procesar/{token}")
     public ResponseEntity ProcesarArchivo(@PathVariable("token") String token, HttpSession sesion) {
         //Recuperar el archivo guardado 
