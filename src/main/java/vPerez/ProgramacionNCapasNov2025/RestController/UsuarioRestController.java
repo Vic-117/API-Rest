@@ -118,24 +118,11 @@ public class UsuarioRestController {
         @ApiResponse(responseCode = "500", description="Error desconocido en el servidor")
     })
     @PutMapping("{idUsuario}")
-    public ResponseEntity updateUsuario(@Valid @RequestBody Usuario usuarioBody, BindingResult bindingResult) {
+    public ResponseEntity updateUsuario(@RequestBody Usuario usuarioBody) {
         Result result = new Result();
-        if (bindingResult.hasErrors()) {
-            result.Correct = false;
-            result.StatusCode = 202;
-//            result.Objects = new ArrayList<>();
-            bindingResult.getFieldError();
-            result.Object = "Tienes errores";
-
-//            List<String> errors = bindingResult.getAllErrors()
-//                    .stream()
-//                    .map(ObjectError::getDefaultMessage)
-//                    .toList();
-//            return ResponseEntity.badRequest().body(errors);
-
-        } else {
+//            result.Correct = false;
+//            result.StatusCode = 202;
             result = usuarioJpaDaoImplementation.update(usuarioBody);
-        }
             return ResponseEntity.status(result.StatusCode).body(result);
 
     }
@@ -442,7 +429,7 @@ public class UsuarioRestController {
 
                 if (tokenArchivo.equals(token)) {
                     System.out.println(token);
-                    if (horaActual.isBefore(tiempo.plusMinutes(1L).plusSeconds(30L))) {
+                    if (horaActual.isBefore(tiempo.plusMinutes(2L).plusSeconds(30L))) {
                         String ruta = (linea.split("\\|")[1]);
                         System.out.println("dentro del tiempo" + "\n");
 

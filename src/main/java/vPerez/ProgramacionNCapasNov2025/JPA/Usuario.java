@@ -35,45 +35,33 @@ public class Usuario {
     @Column(name = "idusuario")
     private int idUsuario;
 
-    @NotNull(message = "LLena el campo")
-    @Size(min = 3, max = 50)
-    @NotNull
+    
     @Column(name = "username")
     private String nombre;
 
-    @NotNull
     @Column(name = "apellidopaterno")
     private String apellidoPaterno;
 
-    @NotNull
     @Column(name = "apellidomaterno")
     private String apellidoMaterno;
 
-    @NotNull
     private String email;
 
-    @NotNull
     private String password;
 
-    @NotNull
     @Column(name = "fechanacimiento")
     private Date fechaNacimiento;
 
-    @NotNull
     @JoinColumn(name = "idrol")
     @ManyToOne
     public Rol rol;
 
-    @NotNull
     private String sexo;
 
-    @NotNull
     private String telefono;
 
-    @NotNull
     private String celular;
 
-    @NotNull
     private String curp;
 
     private int estatus;
